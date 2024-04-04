@@ -65,10 +65,6 @@ final_df = spark.createDataFrame(spark.sparkContext.emptyRDD(), dataframes[0].sc
 for df in dataframes:
     final_df = final_df.union(df)
 
-# Write the final DataFrame to disk with partitioning
-# output_dir = r"D:\studymaterials\spark\pysaprk\output"
-# final_df.write.partitionBy("c1").mode("overwrite").format("parquet").save(output_dir)
-
 final_df.show(truncate=False)
 
 final_df.groupby(["source_key", "student_id"]).agg(count("*").alias("Count"),
@@ -76,7 +72,6 @@ final_df.groupby(["source_key", "student_id"]).agg(count("*").alias("Count"),
                                                    max("mark").alias("Max_Score"),
                                                    min("mark").alias("Min_Score")).show(truncate=False)
 
-#final_df.createOrReplaceTempView()
-# Stop SparkSession
-spark.streams.awaitAnyTermination()
-# spark.stop()
+
+# spark.streams.awaitAnyTermination()
+spark.stop()

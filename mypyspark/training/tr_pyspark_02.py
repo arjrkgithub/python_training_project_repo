@@ -1,3 +1,4 @@
+
 import findspark
 findspark.init()
 
@@ -94,8 +95,8 @@ resultDF.show(truncate=False)
 
 # Write the final DataFrame to disk with partitioning ########################
 
-# output_dir = r"D:\studymaterials\spark\pysaprk\output"
-# resultDF.write.partitionBy("source_key").mode("overwrite").format("parquet").save(output_dir)
+output_dir = r"D:\studymaterials\spark\pysaprk\output"
+resultDF.write.partitionBy("source_key").mode("append").format("parquet").save(output_dir)
 
 # spark.streams.awaitAnyTermination()
 spark.stop()

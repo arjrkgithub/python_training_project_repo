@@ -79,5 +79,5 @@ final_df.groupby(["source_key", "student_id"]).agg(sum("mark").alias("Total_Scor
 
 
 # Stop SparkSession
-spark.streams.awaitAnyTermination()
-# spark.stop()
+# spark.streams.awaitAnyTermination()
+spark.stop()
