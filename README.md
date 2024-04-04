@@ -1,6 +1,9 @@
 Dependencies for local developement
+
 Python/pySpark IDE
+
 git CLI
+
 python/pyspark installation or python virtual meachine installaltion
 
 After the above steps : 
