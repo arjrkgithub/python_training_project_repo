@@ -11,7 +11,7 @@ spark = SparkSession.builder \
 # spark.sparkContext.setLogLevel("info")
 
 # Read the JSON file containing the mapping data
-json_file = r"D:\studymaterials\spark\data_mapping_01.json"
+json_file = r"C:\Users\hp sys\PycharmProjects\pythonProject\mapping_data\data_mapping_01.json"
 with open(json_file) as f:
     json_data = json.load(f)
 

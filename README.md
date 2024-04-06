@@ -17,3 +17,12 @@ After the above steps :
     Open this project using the IDE
 
     Setup the Python Intrepreter either Virtual envrionment or System Environment{in PyCharm, File -> Settings -> Project:<your_project_name> -> Interpreter -> Choose appropirate one}
+
+    Plase the sample files and configure the respective path in your program and run it
+
+python_notebook_training : 
+
+    These file has to be open with Jupyter notebook(you can use python anconda to install the juypter notebook)
+
+
+
