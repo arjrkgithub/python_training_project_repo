@@ -18,7 +18,7 @@ After the above steps :
 
     Setup the Python Intrepreter either Virtual envrionment or System Environment{in PyCharm, File -> Settings -> Project:<your_project_name> -> Interpreter -> Choose appropirate one}
 
-    Plase the sample files and configure the respective path in your program and run it
+    Please use the sample files and configure the respective path in your program and run it
 
 python_notebook_training : 
 
