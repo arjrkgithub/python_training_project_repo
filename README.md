@@ -4,7 +4,9 @@ Dependencies for local developement
 
     git CLI
 
-    python/pyspark installation or python virtual meachine installaltion
+    python/pyspark installation or python virtual meachine installaltion for developement and version maintenance
+
+    Python Anaconda for developement
 
 After the above steps : 
 
