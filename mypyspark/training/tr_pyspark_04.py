@@ -2,6 +2,7 @@ from pyspark.sql import SparkSession
 from pyspark.sql.functions import expr, lit
 import json
 from pyspark.sql.functions import count, sum, max, min
+import os
 
 # Create a SparkSession
 spark = SparkSession.builder \
@@ -11,7 +12,9 @@ spark = SparkSession.builder \
 # spark.sparkContext.setLogLevel("info")
 
 # Read the JSON file containing the mapping data
-json_file = r"C:\Users\hp sys\PycharmProjects\pythonProject\mapping_data\data_mapping_01.json"
+# json_file = os.path.abspath(r"mapping_data\data_mapping_01.json")
+json_file = r"/home/myunix/testpyspark/pyfiles/mapping_data/data_mapping_02.json"
+
 with open(json_file) as f:
     json_data = json.load(f)
 
@@ -50,6 +53,7 @@ def align_transform_normalize(df, transformations):
 
 all_columns = get_all_columns(json_data['data_sources'])
 print(all_columns)
+output_path = json_data['output_path']
 
 # Iterate through each data source, read the CSV, and create DataFrames
 dataframes = []
@@ -78,6 +82,7 @@ final_df.groupby(["source_key", "student_id"]).agg( max("mark").alias("Max_Score
 
 final_df.groupby(["source_key", "student_id"]).agg(sum("mark").alias("Total_Score")).show(truncate=False)
 
+final_df.write.mode("overwrite").csv(output_path, header=True)
 
 # Stop SparkSession
 # spark.streams.awaitAnyTermination()

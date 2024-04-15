@@ -2,6 +2,7 @@
 import findspark
 findspark.init()
 
+import os
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import expr, lit
 import json
@@ -15,7 +16,9 @@ spark = SparkSession.builder \
 spark.sparkContext.setLogLevel("info")
 
 # Read the JSON file containing the mapping data
-json_file = r"D:\studymaterials\spark\data_mapping_01.json"
+
+json_file = os.path.abspath(r"mapping_data\data_mapping_01.json")
+print(json_file)
 with open(json_file) as f:
     json_data = json.load(f)
 
@@ -53,6 +56,7 @@ def align_transform_normalize(df, transformations):
 
 
 all_columns = get_all_columns(json_data['data_sources'])
+output_path = json_data['output_path']
 # print(all_columns)
 
 # Iterate through each data source, read the CSV, and create DataFrames
@@ -95,8 +99,10 @@ resultDF.show(truncate=False)
 
 # Write the final DataFrame to disk with partitioning ########################
 
-output_dir = r"D:\studymaterials\spark\pysaprk\output"
-resultDF.write.partitionBy("source_key").mode("append").format("parquet").save(output_dir)
+# resultDF.write.partitionBy("source_key").mode("append").format("parquet").save(output_dir)
+
+resultDF.write.mode("overwrite").csv(output_path, header=True)
+
 
 # spark.streams.awaitAnyTermination()
 spark.stop()

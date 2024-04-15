@@ -1,0 +1,65 @@
+{
+  "data_sources": [
+    {
+      "source_name": "TN",
+      "path": "D:\\studymaterials\\spark\\pysaprk\\student_marks_tn.csv",
+      "transformations": [
+        {
+          "column_name": "student_id",
+          "expression": "trim(student_id) as student_id"
+        },
+        {
+          "column_name": "stu_name",
+          "expression": "trim(stu_name) as student_name"
+        },
+		{
+          "column_name": "subject",
+          "expression": "trim(subject) as subject"
+        },
+		{
+          "column_name": "mark",
+          "expression": "mark"
+        },
+		{
+          "column_name": "remarks",
+          "expression": "'This is from TN'"
+        },		
+        {
+          "column_name": "source_key",
+          "expression": "'TN'"
+        }
+      ]
+    },
+    {
+      "source_name": "KL",
+      "path": "D:\\studymaterials\\spark\\pysaprk\\student_marks_kl.csv",
+      "transformations": [
+        {
+          "column_name": "student_id",
+          "expression": "trim(student_id) as student_id"
+        },
+        {
+          "column_name": "stu_name",
+          "expression": "trim(stu_name) as student_name"
+        },
+		{
+          "column_name": "subject",
+          "expression": "trim(subject) as subject"
+        },
+		{
+          "column_name": "mark",
+          "expression": "mark"
+        },
+		{
+          "column_name": "contact",
+          "expression": "contact"
+        },
+        {
+          "column_name": "source_key",
+          "expression": "'KL'"
+        }
+      ]
+    }
+  ],
+  "output_path" : "D:\\studymaterials\\spark\\pysaprk\\output\\"
+}

@@ -2,7 +2,7 @@
   "data_sources": [
     {
       "source_name": "TN",
-      "path": "D:\\studymaterials\\spark\\pysaprk\\student_marks_tn.csv",
+      "path": "/home/myunix/testdata/student_data/student_marks_tn.csv",
       "transformations": [
         {
           "column_name": "student_id",
@@ -32,7 +32,7 @@
     },
     {
       "source_name": "KL",
-      "path": "D:\\studymaterials\\spark\\pysaprk\\student_marks_kl.csv",
+      "path": "/home/myunix/testdata/student_data/student_marks_kl.csv",
       "transformations": [
         {
           "column_name": "student_id",
@@ -60,5 +60,6 @@
         }
       ]
     }
-  ]
+  ],
+  "output_path" : "/home/myunix/testdata/output/student_data/"
 }
