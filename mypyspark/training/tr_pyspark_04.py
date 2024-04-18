@@ -12,8 +12,8 @@ spark = SparkSession.builder \
 # spark.sparkContext.setLogLevel("info")
 
 # Read the JSON file containing the mapping data
-# json_file = os.path.abspath(r"mapping_data\data_mapping_01.json")
-json_file = r"/home/myunix/testpyspark/pyfiles/mapping_data/data_mapping_02.json"
+json_file = os.path.abspath(r"mapping_data\data_mapping_01.json")
+# json_file = r"/home/myunix/testpyspark/pyfiles/mapping_data/data_mapping_02.json"
 
 with open(json_file) as f:
     json_data = json.load(f)
@@ -70,9 +70,12 @@ for df in dataframes:
     final_df = final_df.union(df)
 
 # with persist #############################################
+
 final_df.persist()
 
 final_df.show(truncate=False)
+
+
 
 final_df.groupby(["source_key", "student_id"]).agg(count("*").alias("Count")).show(truncate=False)
 
@@ -85,6 +88,6 @@ final_df.groupby(["source_key", "student_id"]).agg(sum("mark").alias("Total_Scor
 final_df.write.mode("overwrite").csv(output_path, header=True)
 
 # Stop SparkSession
-# spark.streams.awaitAnyTermination()
+spark.streams.awaitAnyTermination()
 
 spark.stop()
