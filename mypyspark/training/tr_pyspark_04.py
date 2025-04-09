@@ -9,6 +9,7 @@ spark = SparkSession.builder \
     .appName("Read JSON and Union CSVs") \
     .getOrCreate()
 
+
 # spark.sparkContext.setLogLevel("info")
 
 # Read the JSON file containing the mapping data
