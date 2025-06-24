@@ -86,7 +86,9 @@ final_df.groupby(["source_key", "student_id"]).agg( max("mark").alias("Max_Score
 
 final_df.groupby(["source_key", "student_id"]).agg(sum("mark").alias("Total_Score")).show(truncate=False)
 
-final_df.write.mode("overwrite").csv(output_path, header=True)
+#final_df.write.mode("overwrite").csv(output_path, header=True)
+
+final_df.show(20,False)
 
 # Stop SparkSession
 spark.streams.awaitAnyTermination()

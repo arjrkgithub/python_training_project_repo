@@ -1,0 +1,46 @@
+{
+  "shareHoldings": {
+    "sourceCSVPath" : "C:\\data_for_external_table\\holdings_clean.csv",
+    "targetTable" : "tblHoldingsClean",
+    "readSchema" : [
+      {
+        "col_name" : "instrument", "col_type": "string"
+      },
+      {
+        "col_name" : "quantity", "col_type": "int"
+      },
+      {
+        "col_name" : "avg_cost", "col_type": "double"
+      },
+      {
+        "col_name" : "ltp", "col_type": "double"
+      },
+      {
+        "col_name" : "invested", "col_type": "double"
+      },
+      {
+        "col_name" : "curr_val", "col_type": "double"
+      },
+      {
+        "col_name" : "pnl", "col_type": "double"
+      },
+      {
+        "col_name" : "net_chg", "col_type": "double"
+      },
+      {
+        "col_name" : "day_chg", "col_type": "double"
+      }
+    ],
+    "transformations": [
+      {
+        "column_name" : "mis_date",
+        "expression": "date_format(current_date(), 'dd-MMM-yyyy')"
+      },
+      {
+        "column_name" : "average_cost",
+        "expression" : "avg_cost"
+      }
+    ]
+  }
+
+}
