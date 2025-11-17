@@ -40,7 +40,12 @@
         "column_name" : "average_cost",
         "expression" : "avg_cost"
       }
-    ]
+    ],
+    "read_db_tables" :
+
+      {"holdings_qry_01" : "select * from share_holdings"}
+
+
   }
 
 }

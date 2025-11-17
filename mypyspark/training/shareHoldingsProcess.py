@@ -44,6 +44,17 @@ def apply_transformation(spark, df, transformations):
     return df
 
 
+def read_table_from_db(spark, url, user, pw, db_driver, query):
+    df = spark.read.format("jdbc") \
+        .option("url", url) \
+        .option("dbtable", f"({query}) tmp") \
+        .option("user", user) \
+        .option("password", pw) \
+        .option("driver", db_driver) \
+        .load()
+    return df
+
+
 def main():
     # Create a SparkSession
     spark = SparkSession.builder \
@@ -70,6 +81,18 @@ def main():
 
     df3.show(20,False)
 
+    url = "jdbc:oracle:thin:@//localhost:1521/FREEPDB1"
+    user= "test_user"
+    pw = "mydb12345"
+    db_driver = "oracle.jdbc.driver.OracleDriver"
+
+    #query = configs["shareHoldings"]["read_db_tables"]["holdings_qry_01"]
+    query = "select * from t1 left outer join t2"
+    print(query)
+
+    db_df = read_table_from_db(spark, url, user, pw, db_driver, query)
+
+    db_df.show(10,False)
 
 if __name__ == "__main__":
     print("Hell0")

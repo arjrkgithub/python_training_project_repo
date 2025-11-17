@@ -1,0 +1,11 @@
+{
+     "targetTable": "T1_SHARE_HOLDINGS",
+     "load_type" : "incremental",
+     "incremental_column" : "mis_date",
+    "transformations": [
+      {
+        "column_name": "mis_date",
+        "expression": "to_date(date_format(current_date()-1, 'dd-MMM-yyyy'),'dd-MMM-yyyy')"
+      }
+    ]
+}

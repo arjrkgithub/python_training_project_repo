@@ -1,0 +1,19 @@
+{
+  "target_db_configs": {
+      "host" : "localhost",
+      "port" : "5432",
+      "database" : "mypostgresdb",
+      "sqldriver" : "postgresql",
+      "url" : "jdbc:postgresql://localhost:5432/mypostgresdb",
+      "user" : "postgres",
+      "password" : "mydb12345",
+      "driver": "org.postgresql.Driver",
+      "schema" : "public"
+  },
+  "source_db_configs" : {
+    "url" : "jdbc:oracle:thin:@//localhost:1521/FREEPDB1",
+    "user" : "test_user",
+    "password" : "mydb12345",
+    "driver" :  "oracle.jdbc.driver.OracleDriver"
+  }
+}
