@@ -26,8 +26,9 @@ class ShareHoldingService:
             day_chg 
             FROM    
             share_holdings
+            
         """
-        # where mis_date ='{p_mis_date}'
+        # where mis_date ='{p_mis_date}
 
         return query
 
