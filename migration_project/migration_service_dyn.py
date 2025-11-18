@@ -1,4 +1,3 @@
-
 from pyspark.sql import SparkSession,DataFrame
 from pyspark.sql.functions import expr, lit,col
 import json
@@ -6,9 +5,8 @@ from pyspark.sql.functions import count, sum, max, min,avg
 import os
 from pyspark.sql.types import StructType, StructField, StringType, IntegerType, DoubleType, DateType
 import psycopg2
-from psycopg2 import sql
 import importlib
-
+from datetime import datetime, timedelta
 
 
 def read_config(config_path):
@@ -102,11 +100,13 @@ def load_services(config_path_services_to_run):
 
 def migration_process():
     # has to be extracted from  parameter feed
-    p_mis_date = '16-NOV-2025'
+    # p_mis_date = '17-NOV-2025'
+    p_mis_date = (datetime.now() - timedelta(days=1)).strftime("%d-%b-%Y").upper()
+    p_config_path = "C:/Users/hp sys/PycharmProjects/pythonProject/migration_project/configs"
 
-    config_path = "C:/Users/hp sys/PycharmProjects/pythonProject/migration_project/configs"
+    results = []
 
-    config_path_services_to_run = f"{config_path}/services_to_run.json"
+    config_path_services_to_run = f"{p_config_path}/services_to_run.json"
     services = load_services(config_path_services_to_run)
 
     # Create a SparkSession
@@ -117,7 +117,7 @@ def migration_process():
 
     spark.sparkContext.setLogLevel("info")
 
-    src_target_config = f"{config_path}/src_target_configs.json"
+    src_target_config = f"{p_config_path}/src_target_configs.json"
     db_configs = read_config(src_target_config)
 
     # read source DB
@@ -142,22 +142,20 @@ def migration_process():
     }
     target_url_for_sql= f"{target_sql_driver}://{target_user}:{target_pw}@{target_host}:{target_port}/{target_database}"
 
+    # fetching records and store it into dataframe
     for service in services:
         src_qry = service.get_sql_query(p_mis_date)
-        qry_configs = service.get_configs(config_path)
-
-        # qry_configs = read_config(r"configs/shareholding_configs.json")
+        qry_configs = service.get_configs(p_config_path)
 
         # read query configs
-        # src_qry = qry_configs["sourceQuery"]
         target_table = qry_configs["targetTable"]
         transformations = qry_configs["transformations"]
         load_type = qry_configs["load_type"]
         incremental_column = qry_configs["incremental_column"]
 
-        df_source : DataFrame = read_data_from_db(spark, src_url, src_user, src_pw, src_driver, src_qry)
+        df_source: DataFrame = read_data_from_db(spark, src_url, src_user, src_pw, src_driver, src_qry)
 
-        df_transformed : DataFrame = apply_transformation(spark,df_source,transformations)
+        df_transformed: DataFrame = apply_transformation(spark,df_source,transformations)
 
         # df_transformed.show(100, False)
 
@@ -166,23 +164,35 @@ def migration_process():
         df_target_empty: DataFrame = read_data_from_db(spark, target_url, target_user, target_pw,
                                                        target_driver, target_schema_qry)
 
-        cols = get_schema_aligned_columns(df_transformed,df_target_empty)
+        cols = get_schema_aligned_columns(df_transformed, df_target_empty)
 
         df_aligned = df_transformed.select(cols)
 
+        results.append({
+            "df_aligned": df_aligned,
+            "load_type": load_type,
+            "target_table": target_table,
+            "incremental_column": incremental_column
+            })
+
+    # iterate the dataframe output lists and write it into Database
+    for result in results:
+        load_type = result["load_type"]
+        target_table = result["target_table"]
+        incremental_column = result["incremental_column"]
+        df_aligned = result["df_aligned"]
         if load_type == "incremental":
             v_del_sql = f"delete from  {target_table}  where {incremental_column } = '{p_mis_date}'"
             print(v_del_sql)
             delete_records_from_db(target_url_for_sql,v_del_sql)
             print("deletion done successfully")
-            mode ="append"
+            mode = "append"
         else:
-            mode ="overwrite"
+            mode = "overwrite"
             print("going to be overwritten")
 
         write_into_db_table(spark, df_aligned, target_url, target_properties, target_table, mode)
-
-        print("writtern process completed")
+        print("Writtern process completed")
 
 
 if __name__ == "__main__":
