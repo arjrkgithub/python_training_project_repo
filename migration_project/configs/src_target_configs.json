@@ -8,12 +8,14 @@
       "user" : "postgres",
       "password" : "mydb12345",
       "driver": "org.postgresql.Driver",
-      "schema" : "public"
+      "schema" : "public",
+      "connection_name" : "aws_glu_postgres_connection_name"
   },
   "source_db_configs" : {
     "url" : "jdbc:oracle:thin:@//localhost:1521/FREEPDB1",
     "user" : "test_user",
     "password" : "mydb12345",
-    "driver" :  "oracle.jdbc.driver.OracleDriver"
+    "driver" :  "oracle.jdbc.driver.OracleDriver",
+    "connection_name" : "aws_glu_oracle_connection_name"
   }
 }

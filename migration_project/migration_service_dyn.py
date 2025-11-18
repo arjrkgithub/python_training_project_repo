@@ -117,7 +117,7 @@ def migration_process():
         print("Written process completed")
 
 
-# Starting Point
+# ENTRY POINT
 if __name__ == "__main__":
     print("Process started")
     migration_process()
