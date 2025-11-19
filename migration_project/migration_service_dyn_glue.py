@@ -35,7 +35,7 @@ def migration_process(glue_ctx, args):
     results = []
 
     # Read list of services to run
-    config_path_services_to_run = f"{p_config_path}/services_to_run.json"
+    config_path_services_to_run = f"{p_config_path}/services_to_run_glue.json"
     services = load_services(glue_ctx, config_path_services_to_run)
 
     # Read source/target database configs
