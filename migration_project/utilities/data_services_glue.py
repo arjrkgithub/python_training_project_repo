@@ -6,6 +6,8 @@ import importlib
 from awsglue.context import GlueContext
 from awsglue.utils import getResolvedOptions
 from awsglue.job import Job
+from awsglue.dynamicframe import DynamicFrame
+
 
 from pyspark.sql.functions import expr, lit, col
 from pyspark.context import SparkContext
@@ -76,20 +78,23 @@ def read_data_from_db(glue_ctx: GlueContext, connection_name, query):
 # -------------------------------------------------------------------
 # Write DataFrame to database using Glue connection
 # -------------------------------------------------------------------
+
 def write_into_db_table(glue_ctx: GlueContext, df: DataFrame, connection_name, target_table, mode="append"):
-    dynamic_frame = glue_ctx.create_dynamic_frame.from_df(df, glue_ctx, "df")
+
+    # Convert DataFrame to DynamicFrame
+    dynamic_frame = DynamicFrame.fromDF(df, glue_ctx, "df")
 
     glue_ctx.write_dynamic_frame.from_options(
         frame=dynamic_frame,
-        connection_type="postgresql",
+        connection_type="jdbc",        # use jdbc, NOT "postgresql"
         connection_options={
             "connectionName": connection_name,
             "dbtable": target_table,
             "preactions": "",
-            "postactions": ""
+            "postactions": "",
+            "mode": mode
         }
     )
-
 
 # -------------------------------------------------------------------
 # Align schemas between source and target
