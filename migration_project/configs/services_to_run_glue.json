@@ -1,5 +1,5 @@
 {
-    "services": [
-        "services.ShareHoldingServiceGlue"
-    ]
+  "services": [
+    "services.ShareHoldingServiceGlue"
+  ]
 }

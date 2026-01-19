@@ -1,10 +1,10 @@
 {
   "target_db_configs": {
-      "host" : "localhost",
+      "host" : "host.docker.internal",
       "port" : "5432",
       "database" : "mypostgresdb",
       "sqldriver" : "postgresql",
-      "url" : "jdbc:postgresql://localhost:5432/mypostgresdb",
+      "url" : "jdbc:postgresql://host.docker.internal:5432/mypostgresdb",
       "user" : "postgres",
       "password" : "mydb12345",
       "driver": "org.postgresql.Driver",
@@ -12,10 +12,10 @@
       "connection_name" : "aws_glu_postgres_connection_name"
   },
   "source_db_configs" : {
-    "url" : "jdbc:oracle:thin:@//localhost:1521/FREEPDB1",
+    "url" : "jdbc:oracle:thin:@//host.docker.internal:1521/FREEPDB1",
     "user" : "test_user",
     "password" : "mydb12345",
-    "driver" :  "oracle.jdbc.driver.OracleDriver",
+    "driver" :  "oracle.jdbc.OracleDriver",
     "connection_name" : "aws_glu_oracle_connection_name"
   }
 }

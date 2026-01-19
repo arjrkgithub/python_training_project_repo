@@ -2,11 +2,18 @@ import os
 import sys
 import json
 import importlib
-
-from awsglue.context import GlueContext
-from awsglue.utils import getResolvedOptions
-from awsglue.job import Job
-from awsglue.dynamicframe import DynamicFrame
+import psycopg2
+try:
+    from awsglue.context import GlueContext
+    from awsglue.utils import getResolvedOptions
+    from awsglue.job import Job
+    from awsglue.dynamicframe import DynamicFrame
+except ImportError:
+    # Local fallback (optional but useful)
+    GlueContext = None
+    getResolvedOptions = None
+    Job = None
+    DynamicFrame = None
 
 
 from pyspark.sql.functions import expr, lit, col
@@ -14,20 +21,31 @@ from pyspark.context import SparkContext
 from pyspark.sql import SparkSession,DataFrame
 
 
-
 # -------------------------------------------------------------------
 # Read JSON config file (from S3)
 # -------------------------------------------------------------------
-def read_config(config_path):
+def read_config_old(spark: SparkSession, config_path):
     """
     Reads JSON from S3 or local path.
     Example S3 Path: s3://bucket/configs/mapping.json
     """
-    spark = GlueContext(SparkContext.getOrCreate()).spark_session
+    df = spark.read \
+        .option("multiLine", "true") \
+        .option("mode", "PERMISSIVE") \
+        .json(config_path)
 
-    df = spark.read.json(config_path)
     return df.collect()[0].asDict()
 
+
+def read_config(spark: SparkSession, config_path):
+    # Read file as plain text
+    df_text = spark.read.text(config_path)
+
+    # Collect lines as a single string
+    json_str = "\n".join([row.value for row in df_text.collect()])
+
+    # Parse with Python json module
+    return json.loads(json_str)
 
 # -------------------------------------------------------------------
 # Apply transformations to dataframe
@@ -55,6 +73,21 @@ def delete_records_from_db(glue_ctx: GlueContext, connection_name, delete_query)
     )
 
 
+def delete_records_from_db_local(delete_sql, host, port, dbname, user, password):
+    conn = psycopg2.connect(
+        host=host,
+        port=port,
+        dbname=dbname,
+        user=user,
+        password=password
+    )
+    conn.autocommit = True
+    cur = conn.cursor()
+    cur.execute(delete_sql)
+    cur.close()
+    conn.close()
+
+
 # -------------------------------------------------------------------
 # Read from database using Glue connection
 # -------------------------------------------------------------------
@@ -73,6 +106,30 @@ def read_data_from_db(glue_ctx: GlueContext, connection_name, query):
     )
 
     return dynamic_frame.toDF()
+
+
+def read_data_from_db_jdbc(
+    spark: SparkSession,
+    url: str,
+    user: str,
+    pw: str,
+    driver: str,
+    query: str
+) -> DataFrame:
+    df = spark.read.format("jdbc") \
+        .option("url", url) \
+        .option("dbtable", f"({query}) tmp") \
+        .option("user", user) \
+        .option("password", pw) \
+        .option("driver", driver) \
+        .option("fetchsize", 10000) \
+        .option("partitionColumn", "mis_date") \
+        .option("lowerBound", 1) \
+        .option("upperBound", 10000000) \
+        .option("numPartitions", 20) \
+        .load()
+
+    return df
 
 
 # -------------------------------------------------------------------
@@ -95,6 +152,17 @@ def write_into_db_table(glue_ctx: GlueContext, df: DataFrame, connection_name, t
             "mode": mode
         }
     )
+
+
+# write spark dataframe into database
+def write_into_db_table_local(df: DataFrame, target_url, target_properties, target_table, mode):
+    df.write.jdbc(
+        url=target_url,
+        table=target_table,
+        mode=mode,  # or "overwrite" if you want to replace
+        properties=target_properties
+    )
+
 
 # -------------------------------------------------------------------
 # Align schemas between source and target
@@ -121,7 +189,7 @@ def get_schema_aligned_columns(target_df: DataFrame, source_df: DataFrame):
 # Loads service classes dynamically
 # -------------------------------------------------------------------
 
-def load_services(glue_ctx: GlueContext, config_s3_path: str):
+def load_services(spark: SparkSession, config_s3_path: str):
     """
     Reads services JSON from S3 using GlueContext and dynamically loads classes.
 
@@ -135,8 +203,11 @@ def load_services(glue_ctx: GlueContext, config_s3_path: str):
     Example S3 path: s3://my-bucket/configs/services_to_run.json
     """
     # Use GlueContext to read JSON from S3
-    df = glue_ctx.spark_session.read.json(config_s3_path)
-    cfg = df.collect()[0].asDict()  # Convert single-row DataFrame to dict
+    # df = glue_ctx.spark_session.read.json(config_s3_path)
+    # cfg = df.collect()[0].asDict()  # Convert single-row DataFrame to dict
+
+    cfg = read_config(spark, config_s3_path)
+
 
     service_objects = []
     for class_path in cfg.get("services", []):

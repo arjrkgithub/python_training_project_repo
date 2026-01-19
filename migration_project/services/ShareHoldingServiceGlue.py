@@ -1,6 +1,12 @@
 import json
 import importlib
-from awsglue.context import GlueContext
+try:
+    from awsglue.context import GlueContext
+    from pyspark.sql import SparkSession, DataFrame
+except ImportError:
+    # Local fallback (optional but useful)
+    SparkSession = None
+
 
 
 class ShareHoldingServiceGlue:
@@ -8,7 +14,7 @@ class ShareHoldingServiceGlue:
     def __init__(self):
         pass
 
-    def get_configs(self, glue_ctx: GlueContext, s3_folder_path: str):
+    def get_configs(self, spark: SparkSession, s3_folder_path: str):
         """
         Read the JSON config from S3.
 
@@ -20,16 +26,18 @@ class ShareHoldingServiceGlue:
 
         Final Path = s3://my-bucket/configs/shareholding_configs.json
         """
-        config_file_name ="shareholding_configs.json"
+        config_file_name = "shareholding_configs.json"
         json_file_path = f"{s3_folder_path}/{config_file_name}"
 
-        # Read JSON from S3 into Spark DF
-        df = glue_ctx.spark_session.read.json(json_file_path)
+        # Read file as plain text
+        df_text = spark.read.text(json_file_path)
 
-        # Expecting 1-row JSON → convert to dict
-        config_dict = df.collect()[0].asDict()
+        # Collect lines as a single string
+        json_str = "\n".join([row.value for row in df_text.collect()])
 
-        return config_dict
+        # Parse with Python json module
+        return json.loads(json_str)
+
 
     def get_sql_query(self, p_mis_date: str):
         """
