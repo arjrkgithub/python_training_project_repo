@@ -1,5 +1,6 @@
 import sys
 import json
+import time
 from datetime import datetime, timedelta
 from pyspark.context import SparkContext
 
@@ -121,7 +122,14 @@ def migration_process(glue_ctx: GlueContext, args):
                  query=src_qry
             )
         else:
-            df_source = read_data_from_db_jdbc(sc, source_url, source_user, source_pw, source_driver, src_qry)
+            df_source = read_data_from_db_jdbc(
+                spark=sc,
+                url=source_url,
+                user=source_user,
+                pw=source_pw,
+                driver=source_driver,
+                query=src_qry
+            )
 
         # Apply transformations
         df_transformed = apply_transformation(df_source, transformations)
@@ -140,8 +148,14 @@ def migration_process(glue_ctx: GlueContext, args):
                query=target_schema_qry
             )
         else:
-            df_target_empty = read_data_from_db_jdbc(sc, target_url, target_user, target_pw,
-                                                      target_driver, target_schema_qry)
+            df_target_empty = read_data_from_db_jdbc(
+                spark=sc,
+                url=target_url,
+                user=target_user,
+                pw=target_pw,
+                driver=target_driver,
+                query=target_schema_qry
+            )
 
         # df_target_empty = DynamicFrame.fromDF(df_target_empty_local, glue_ctx, "df_name")
         print("######################################target extraction done")
@@ -225,5 +239,8 @@ if __name__ == "__main__":
 
     migration_process(glue_ctx, args)
 
-    job.commit()
     print("#################################AWS Glue Migration Completed")
+
+    job.commit()
+
+

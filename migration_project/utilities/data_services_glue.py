@@ -109,26 +109,54 @@ def read_data_from_db(glue_ctx: GlueContext, connection_name, query):
 
 
 def read_data_from_db_jdbc(
-    spark: SparkSession,
-    url: str,
-    user: str,
-    pw: str,
-    driver: str,
-    query: str
+        spark: SparkSession,
+        url: str,
+        user: str,
+        pw: str,
+        driver: str,
+        query: str,
+        partition_column: str = None,
+        lower_bound: int = None,
+        upper_bound: int = None,
+        num_partitions: int = None,
+        fetchsize: int = 10000
 ) -> DataFrame:
-    df = spark.read.format("jdbc") \
+    """
+    Reads data from a JDBC source into a Spark DataFrame.
+
+    Args:
+        spark: SparkSession object
+        url: JDBC URL
+        user: DB username
+        pw: DB password
+        driver: JDBC driver class
+        query: SQL query (use 'query' instead of 'dbtable' for safety)
+        partition_column: Column name for parallel reads (numeric only)
+        lower_bound: Lower bound of partition column
+        upper_bound: Upper bound of partition column
+        num_partitions: Number of partitions for parallel reads
+        fetchsize: Number of rows per fetch
+
+    Returns:
+        Spark DataFrame
+    """
+
+    reader = spark.read.format("jdbc") \
         .option("url", url) \
-        .option("dbtable", f"({query}) tmp") \
+        .option("query", query) \
         .option("user", user) \
         .option("password", pw) \
         .option("driver", driver) \
-        .option("fetchsize", 10000) \
-        .option("partitionColumn", "mis_date") \
-        .option("lowerBound", 1) \
-        .option("upperBound", 10000000) \
-        .option("numPartitions", 20) \
-        .load()
+        .option("fetchsize", fetchsize)
 
+    # Apply partitioning only if all required params are provided
+    if partition_column and lower_bound is not None and upper_bound is not None and num_partitions:
+        reader = reader.option("partitionColumn", partition_column) \
+            .option("lowerBound", lower_bound) \
+            .option("upperBound", upper_bound) \
+            .option("numPartitions", num_partitions)
+
+    df = reader.load()
     return df
 
 
